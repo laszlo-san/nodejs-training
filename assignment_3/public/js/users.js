@@ -1,0 +1,1 @@
+console.log('I am logged from the users.js file');
