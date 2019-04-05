@@ -1,7 +1,9 @@
-const mysql = require('mysql2');
-
+const Sequelize = require('sequelize');
 const dbCred = require('./dbCredentials');
 
-const pool = mysql.createPool(dbCred);
+const sequelize = new Sequelize(dbCred.database, dbCred.user, dbCred.password, {
+  host: dbCred.host,
+  dialect: 'mysql'
+});
 
-module.exports = pool.promise();
+module.exports = sequelize;
