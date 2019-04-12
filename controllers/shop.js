@@ -108,7 +108,7 @@ exports.postCartDeleteProduct = (req, res) => {
   req.user
     .getCart()
     .then(cart => {
-      return cart.getProducts({ where : { id: prodId}});
+      return cart.getProducts({ where: { id: prodId } });
     })
     .then(products => {
       const product = products[0];
@@ -129,6 +129,19 @@ exports.getOrders = (req, res) => {
     path: '/orders',
     pageTitle: 'Your Orders'
   });
+};
+
+exports.postOrder = (req, res) => {
+  req.user
+    .getCart()
+    .then(cart => {
+      return cart.getProducts();
+    })
+    .then(products => {
+      console.log(products);
+      
+    })
+    .catch(err => console.log(err));
 };
 
 exports.getCheckout = (req, res) => {
