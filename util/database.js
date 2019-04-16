@@ -1,9 +1,16 @@
-const Sequelize = require('sequelize');
+const mongodb = require('mongodb');
+const MongoClient = mongodb.MongoClient;
+
 const dbCred = require('./dbCredentials');
 
-const sequelize = new Sequelize(dbCred.database, dbCred.user, dbCred.password, {
-  host: dbCred.host,
-  dialect: 'mysql'
-});
+const mongoConnect = (callback) => {
+  MongoClient.connect(dbCred.mongoUrlUserPass)
+    .then(client => {
+      console.log('connected!');
+      callback(client);
+    })
+    .catch(err => console.log(err));
+};
 
-module.exports = sequelize;
+
+module.exports = mongoConnect;
