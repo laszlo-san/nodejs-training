@@ -6,7 +6,7 @@ const dbCred = require('./dbCredentials');
 let _db;
 
 const mongoConnect = callback => {
-  MongoClient.connect(dbCred.mongoUrlUserPass)
+  MongoClient.connect(dbCred.mongoUrlUserPass, {useNewUrlParser: true})
     .then(client => {
       console.log('connected!');
       _db = client.db('shop');
