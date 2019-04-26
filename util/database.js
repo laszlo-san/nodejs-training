@@ -9,7 +9,7 @@ const mongoConnect = callback => {
   MongoClient.connect(dbCred.mongoUrlUserPass, {useNewUrlParser: true})
     .then(client => {
       console.log('connected!');
-      _db = client.db('shop');
+      _db = client.db('test');
       callback(client);
     })
     .catch(err => {
