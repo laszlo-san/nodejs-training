@@ -48,7 +48,7 @@ exports.getCart = (req, res) => {
     .execPopulate()
     .then(user => {
       const products = user.cart.items;
-      
+
       res.render('shop/cart', {
         path: '/cart',
         pageTitle: 'Your Cart',
@@ -73,7 +73,7 @@ exports.postCart = (req, res) => {
 exports.postCartDeleteProduct = (req, res) => {
   const prodId = req.body.productId;
   req.user
-    .deleteItemFromCart(prodId)
+    .removeFromCart(prodId)
     .then(() => {
       res.redirect('/cart');
     })
