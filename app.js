@@ -4,7 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
-const dbUrl = require('./util/dbCredentials').mongoUrlUserPass;
+const mongoDbCredentialUrl = require('./util/dbCredentials').mongoUrlUserPass;
 
 const errorController = require('./controllers/error');
 const User = require('./models/user');
@@ -34,17 +34,17 @@ app.use(shopRoutes);
 
 app.use(errorController.get404);
 
-// remove warning flag for mmongodb url parser being depraceted
-mongoose.set('useNewUrlParser', true);
-
 mongoose
-  .connect(dbUrl)
-  .then(() => {
+  .connect(
+    mongoDbCredentialUrl,
+    {useNewUrlParser: true}
+  )
+  .then(result => {
     User.findOne().then(user => {
       if (!user) {
         const user = new User({
-          name: 'Lacen',
-          email: 'lacen@test.com',
+          name: 'Max',
+          email: 'max@test.com',
           cart: {
             items: []
           }
@@ -52,7 +52,6 @@ mongoose
         user.save();
       }
     });
-
     app.listen(3000);
   })
   .catch(err => {

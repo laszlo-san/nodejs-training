@@ -28,8 +28,6 @@ const productSchema = new Schema({
 
 module.exports = mongoose.model('Product', productSchema);
 
-
-
 // const mongodb = require('mongodb');
 // const getDb = require('../util/database').getDb;
 
@@ -46,8 +44,8 @@ module.exports = mongoose.model('Product', productSchema);
 //   save() {
 //     const db = getDb();
 //     let dbOp;
-
 //     if (this._id) {
+//       // Update the product
 //       dbOp = db
 //         .collection('products')
 //         .updateOne({ _id: this._id }, { $set: this });
@@ -58,7 +56,7 @@ module.exports = mongoose.model('Product', productSchema);
 //       .then(result => {
 //         console.log(result);
 //       })
-//       .then(err => {
+//       .catch(err => {
 //         console.log(err);
 //       });
 //   }
@@ -70,6 +68,7 @@ module.exports = mongoose.model('Product', productSchema);
 //       .find()
 //       .toArray()
 //       .then(products => {
+//         console.log(products);
 //         return products;
 //       })
 //       .catch(err => {
@@ -79,12 +78,12 @@ module.exports = mongoose.model('Product', productSchema);
 
 //   static findById(prodId) {
 //     const db = getDb();
-
 //     return db
 //       .collection('products')
 //       .find({ _id: new mongodb.ObjectId(prodId) })
 //       .next()
 //       .then(product => {
+//         console.log(product);
 //         return product;
 //       })
 //       .catch(err => {
@@ -94,11 +93,11 @@ module.exports = mongoose.model('Product', productSchema);
 
 //   static deleteById(prodId) {
 //     const db = getDb();
-//     return db.collection('products')
+//     return db
+//       .collection('products')
 //       .deleteOne({ _id: new mongodb.ObjectId(prodId) })
 //       .then(result => {
 //         console.log('Deleted');
-//         return result;
 //       })
 //       .catch(err => {
 //         console.log(err);
