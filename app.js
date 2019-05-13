@@ -3,6 +3,7 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const session = require('express-session');
 
 const mongoDbCredentialUrl = require('./util/dbCredentials').mongoUrlUserPass;
 
@@ -20,6 +21,14 @@ const authRoutes = require('./routes/auth');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(
+  session({
+    secret:
+      'ldfkitiaads ja ijasadfklsadf sgh  arwghfkjds sgdf sdfhdjsghjrgh dfjgdfgj',
+    resave: false,
+    saveUninitialized: false
+  })
+);
 
 app.use((req, res, next) => {
   User.findById('5cce07e74d4e3c5342144510')
@@ -37,10 +46,7 @@ app.use(authRoutes);
 app.use(errorController.get404);
 
 mongoose
-  .connect(
-    mongoDbCredentialUrl,
-    {useNewUrlParser: true}
-  )
+  .connect(mongoDbCredentialUrl, { useNewUrlParser: true })
   .then(result => {
     User.findOne().then(user => {
       if (!user) {
