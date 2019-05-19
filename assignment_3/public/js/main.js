@@ -1,1 +1,0 @@
-console.log('I am a log from the main.js file');
