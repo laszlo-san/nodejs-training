@@ -5,6 +5,7 @@ module.exports = {
     'no-unused-vars': ['error', { args: 'none' }],
     'object-shorthand': ['error', 'never'],
     'arrow-parens': ['error', 'as-needed'],
-    'no-console': ['error', { allow: ['log'] }]
+    'no-console': ['error', { allow: ['log'] }],
+    'no-param-reassign': ["error", {"props" : false}]
   }
 };
