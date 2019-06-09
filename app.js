@@ -58,16 +58,15 @@ app.use((req, res, next) => {
 
 app.use(auth);
 
-app.put('/post-iamge', (req, res, next) => {
+app.put('/post-image', (req, res, next) => {
   if (!req.isAuth) {
-    throw new Error('Not authentiacet!');
+    throw new Error('Not authenticated!');
   }
   if (!req.file) {
     return res.status(200).json({ message: 'No file provided!' });
   }
-  if (req.body.oldPaht) {
-    // eslint-disable-next-line no-use-before-define
-    clearImage(req.body.oldPaht);
+  if (req.body.oldPath) {
+    clearImage(req.body.oldPath);
   }
   return res
     .status(201)
