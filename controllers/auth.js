@@ -1,6 +1,5 @@
-/* eslint-disable no-underscore-dangle */
 const { validationResult } = require('express-validator/check');
-const brcypt = require('bcryptjs');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
@@ -9,31 +8,34 @@ exports.signup = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const error = new Error('Validation failed.');
-    error.statuCoda = 422;
+    error.statusCode = 422;
     error.data = errors.array();
     throw error;
   }
-  const { email, name, password } = req.body;
+  const email = req.body.email;
+  const name = req.body.name;
+  const password = req.body.password;
   try {
-    const hashedPassword = await brcypt.hash(password, 12);
+    const hashedPw = await bcrypt.hash(password, 12);
+
     const user = new User({
       email: email,
-      password: hashedPassword,
+      password: hashedPw,
       name: name
     });
     const result = await user.save();
     res.status(201).json({ message: 'User created!', userId: result._id });
   } catch (err) {
-    const newError = err;
-    if (!newError.status) {
-      newError.statusCode = 500;
+    if (!err.statusCode) {
+      err.statusCode = 500;
     }
-    next(newError);
+    next(err);
   }
 };
 
 exports.login = async (req, res, next) => {
-  const { email, password } = req.body;
+  const email = req.body.email;
+  const password = req.body.password;
   let loadedUser;
   try {
     const user = await User.findOne({ email: email });
@@ -43,7 +45,7 @@ exports.login = async (req, res, next) => {
       throw error;
     }
     loadedUser = user;
-    const isEqual = await brcypt.compare(password, loadedUser.password);
+    const isEqual = await bcrypt.compare(password, user.password);
     if (!isEqual) {
       const error = new Error('Wrong password!');
       error.statusCode = 401;
@@ -54,16 +56,15 @@ exports.login = async (req, res, next) => {
         email: loadedUser.email,
         userId: loadedUser._id.toString()
       },
-      'sadfl4lkjlkdjfoihoioobgobbkjkjiIEJIOfds44tg4io+Rhngoi4tfgfgv',
+      'somesupersecretsecret',
       { expiresIn: '1h' }
     );
     res.status(200).json({ token: token, userId: loadedUser._id.toString() });
   } catch (err) {
-    const newError = err;
-    if (!newError.status) {
-      newError.statusCode = 500;
+    if (!err.statusCode) {
+      err.statusCode = 500;
     }
-    next(newError);
+    next(err);
   }
 };
 
@@ -77,11 +78,10 @@ exports.getUserStatus = async (req, res, next) => {
     }
     res.status(200).json({ status: user.status });
   } catch (err) {
-    const newError = err;
-    if (!newError.status) {
-      newError.statusCode = 500;
+    if (!err.statusCode) {
+      err.statusCode = 500;
     }
-    next(newError);
+    next(err);
   }
 };
 
@@ -98,10 +98,9 @@ exports.updateUserStatus = async (req, res, next) => {
     await user.save();
     res.status(200).json({ message: 'User updated.' });
   } catch (err) {
-    const newError = err;
-    if (!newError.status) {
-      newError.statusCode = 500;
+    if (!err.statusCode) {
+      err.statusCode = 500;
     }
-    next(newError);
+    next(err);
   }
 };

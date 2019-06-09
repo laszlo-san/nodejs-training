@@ -1,4 +1,7 @@
+/* eslint-disable object-shorthand */
+/* eslint-disable func-names */
 const path = require('path');
+const fs = require('fs');
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -8,6 +11,7 @@ const graphqlHttp = require('express-graphql');
 
 const graphqlSchema = require('./graphql/schema');
 const graphqlResolver = require('./graphql/resolvers');
+const auth = require('./middleware/auth');
 
 const app = express();
 
@@ -16,7 +20,6 @@ const fileStorage = multer.diskStorage({
     cb(null, 'images');
   },
   filename: (req, file, cb) => {
-    // eslint-disable-next-line prefer-template
     cb(null, new Date().toISOString() + '-' + file.originalname);
   }
 });
@@ -53,19 +56,37 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(auth);
+
+app.put('/post-iamge', (req, res, next) => {
+  if (!req.isAuth) {
+    throw new Error('Not authentiacet!');
+  }
+  if (!req.file) {
+    return res.status(200).json({ message: 'No file provided!' });
+  }
+  if (req.body.oldPaht) {
+    // eslint-disable-next-line no-use-before-define
+    clearImage(req.body.oldPaht);
+  }
+  return res
+    .status(201)
+    .json({ message: 'File stored.', filePath: req.file.path });
+});
+
+
 app.use(
   '/graphql',
   graphqlHttp({
     schema: graphqlSchema,
     rootValue: graphqlResolver,
     graphiql: true,
-    // eslint-disable-next-line object-shorthand
     formatError(err) {
       if (!err.originalError) {
         return err;
       }
       const { data } = err.originalError;
-      const message = err.message || 'An error occured.';
+      const message = err.message || 'An error occurred.';
       const code = err.originalError.code || 500;
       return { message: message, status: code, data: data };
     }
@@ -75,9 +96,9 @@ app.use(
 app.use((error, req, res, next) => {
   console.log(error);
   const status = error.statusCode || 500;
-  const { message, data } = error;
-
-  return res.status(status).json({ message: message, data: data });
+  const message = error.message;
+  const data = error.data;
+  res.status(status).json({ message: message, data: data });
 });
 
 mongoose
@@ -91,3 +112,8 @@ mongoose
   .catch(err => {
     console.log(err);
   });
+
+const clearImage = filePath => {
+  filePath = path.join(__dirname, '..', filePath);
+  fs.unlink(filePath, err => console.log(err));
+};

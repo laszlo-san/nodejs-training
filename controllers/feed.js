@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable no-param-reassign */
 const fs = require('fs');
 const path = require('path');
 
@@ -8,15 +6,6 @@ const { validationResult } = require('express-validator/check');
 const io = require('../socket');
 const Post = require('../models/post');
 const User = require('../models/user');
-
-const clearImage = filePath => {
-  filePath = path.join(__dirname, '..', filePath);
-  fs.unlink(filePath, err => {
-    if (err) {
-      console.log(err);
-    }
-  });
-};
 
 exports.getPosts = async (req, res, next) => {
   const currentPage = req.query.page || 1;
@@ -28,6 +17,7 @@ exports.getPosts = async (req, res, next) => {
       .sort({ createdAt: -1 })
       .skip((currentPage - 1) * perPage)
       .limit(perPage);
+
     res.status(200).json({
       message: 'Fetched posts successfully.',
       posts: posts,
@@ -39,13 +29,6 @@ exports.getPosts = async (req, res, next) => {
     }
     next(err);
   }
-  // .catch(err => {
-  //   const newError = err;
-  //   if (!newError.status) {
-  //     newError.statusCode = 500;
-  //   }
-  //   next(newError);
-  // });
 };
 
 exports.createPost = async (req, res, next) => {
@@ -60,10 +43,9 @@ exports.createPost = async (req, res, next) => {
     error.statusCode = 422;
     throw error;
   }
-
   const imageUrl = req.file.path;
-  const { title } = req.body;
-  const { content } = req.body;
+  const title = req.body.title;
+  const content = req.body.content;
   const post = new Post({
     title: title,
     content: content,
@@ -93,36 +75,33 @@ exports.createPost = async (req, res, next) => {
 };
 
 exports.getPost = async (req, res, next) => {
-  const { postId } = req.params;
+  const postId = req.params.postId;
+  const post = await Post.findById(postId);
   try {
-    const post = await Post.findById(postId);
     if (!post) {
       const error = new Error('Could not find post.');
       error.statusCode = 404;
       throw error;
     }
-    res.status(200).json({
-      message: 'Post fetched.',
-      post: post
-    });
+    res.status(200).json({ message: 'Post fetched.', post: post });
   } catch (err) {
-    const newError = err;
-    if (!newError.status) {
-      newError.statusCode = 500;
+    if (!err.statusCode) {
+      err.statusCode = 500;
     }
-    next(newError);
+    next(err);
   }
 };
 
 exports.updatePost = async (req, res, next) => {
-  const { postId } = req.params;
+  const postId = req.params.postId;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const error = new Error('Validation failed, entered data is incorrect.');
     error.statusCode = 422;
     throw error;
   }
-  const { title, content } = req.body;
+  const title = req.body.title;
+  const content = req.body.content;
   let imageUrl = req.body.image;
   if (req.file) {
     imageUrl = req.file.path;
@@ -140,7 +119,7 @@ exports.updatePost = async (req, res, next) => {
       throw error;
     }
     if (post.creator._id.toString() !== req.userId) {
-      const error = new Error('Not authorized.');
+      const error = new Error('Not authorized!');
       error.statusCode = 403;
       throw error;
     }
@@ -162,21 +141,24 @@ exports.updatePost = async (req, res, next) => {
 };
 
 exports.deletePost = async (req, res, next) => {
-  const { postId } = req.params;
+  const postId = req.params.postId;
   try {
     const post = await Post.findById(postId);
+
     if (!post) {
       const error = new Error('Could not find post.');
       error.statusCode = 404;
       throw error;
     }
     if (post.creator.toString() !== req.userId) {
-      const error = new Error('Not authorized.');
+      const error = new Error('Not authorized!');
       error.statusCode = 403;
       throw error;
     }
+    // Check logged in user
     clearImage(post.imageUrl);
     await Post.findByIdAndRemove(postId);
+
     const user = await User.findById(req.userId);
     user.posts.pull(postId);
     await user.save();
@@ -188,4 +170,9 @@ exports.deletePost = async (req, res, next) => {
     }
     next(err);
   }
+};
+
+const clearImage = filePath => {
+  filePath = path.join(__dirname, '..', filePath);
+  fs.unlink(filePath, err => console.log(err));
 };
