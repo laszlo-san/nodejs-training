@@ -1,8 +1,0 @@
-{
-  "env": {
-    "MONGO_USER": "mongo-user-nodejs",
-    "MONGO_PASSWORD": "mongo-user-nodejs",
-    "MONGO_DEFAULT_DB": "shop",
-    "STRIPE_KEY": "sk_test_Z437FXc9efDC5G2AJTjx1H9Z002t5WPlU3"
-  }
-}
