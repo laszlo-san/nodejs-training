@@ -1,7 +1,4 @@
-/* eslint-disable object-shorthand */
-/* eslint-disable func-names */
 const path = require('path');
-const fs = require('fs');
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -12,6 +9,7 @@ const graphqlHttp = require('express-graphql');
 const graphqlSchema = require('./graphql/schema');
 const graphqlResolver = require('./graphql/resolvers');
 const auth = require('./middleware/auth');
+const { clearImage } = require('./util/file');
 
 const app = express();
 
@@ -73,18 +71,17 @@ app.put('/post-image', (req, res, next) => {
     .json({ message: 'File stored.', filePath: req.file.path });
 });
 
-
 app.use(
   '/graphql',
   graphqlHttp({
     schema: graphqlSchema,
     rootValue: graphqlResolver,
     graphiql: true,
-    formatError(err) {
+    customeFormatError(err) {
       if (!err.originalError) {
         return err;
       }
-      const { data } = err.originalError;
+      const data = err.originalError.data;
       const message = err.message || 'An error occurred.';
       const code = err.originalError.code || 500;
       return { message: message, status: code, data: data };
@@ -108,11 +105,4 @@ mongoose
   .then(result => {
     app.listen(8080);
   })
-  .catch(err => {
-    console.log(err);
-  });
-
-const clearImage = filePath => {
-  filePath = path.join(__dirname, '..', filePath);
-  fs.unlink(filePath, err => console.log(err));
-};
+  .catch(err => console.log(err));
