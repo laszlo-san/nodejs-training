@@ -15,7 +15,7 @@ const isAuth = require('./middleware/is-auth');
 const User = require('./models/user');
 
 const MONGODB_URI =
-  'mongodb+srv://mongo-user-nodejs:mongo-user-nodejs@cluster0-5orkz.mongodb.net/shop?retryWrites=true';
+  `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-5orkz.mongodb.net/${process.env.MONGO_DEFAULT_DB}?retryWrites=true`;
 
 const app = express();
 const store = new MongoDBStore({
@@ -119,9 +119,11 @@ app.use((error, req, res, next) => {
 });
 
 mongoose
-  .connect(MONGODB_URI)
+  .connect(MONGODB_URI, {
+    useNewUrlParser: true
+  })
   .then(result => {
-    app.listen(3000);
+    app.listen(process.env.PORT || 3000);
   })
   .catch(err => {
     console.log(err);
